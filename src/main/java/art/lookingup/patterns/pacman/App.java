@@ -1,4 +1,4 @@
-package art.lookingup.pattekrns.pacman;
+package art.lookingup.patterns.pacman;
 
 import static processing.core.PConstants.P2D;
 
