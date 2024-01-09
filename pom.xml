@@ -85,6 +85,20 @@
 	      </systemProperties>
 	    </configuration>
           </execution>
+          <execution>
+            <id>OMG</id>
+            <goals>
+              <goal>java</goal>
+            </goals>
+	    <configuration>
+	      <mainClass>art.lookingup.patterns.pacman.OMG</mainClass>
+	      <arguments>
+	      </arguments>
+	      <stopUnresponsiveDaemonThreads>true</stopUnresponsiveDaemonThreads>
+	      <systemProperties>
+	      </systemProperties>
+	    </configuration>
+          </execution>
         </executions>
       </plugin>
     </plugins>
@@ -96,6 +110,13 @@
       <artifactId>processing-core-4</artifactId>
       <version>4.3</version>
     </dependency>
+
+    <dependency>
+      <groupId>ch.bildspur</groupId>
+      <artifactId>artnet4j</artifactId>
+      <version>0.6.2</version>
+    </dependency>
+
   </dependencies>
 
 </project>
