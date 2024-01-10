@@ -50,7 +50,7 @@ public class PacmanBoard {
     public final static int OG_PIXELS = 8;
 
     // NOTE! Vary this for screen size.
-    public final static float STROKE = 4f * (float) BLOCK_PIXELS / OG_PIXELS;
+    public final static float STROKE = 1.5f * (float) BLOCK_PIXELS / OG_PIXELS;
 
     public final static int BOARD_HEIGHT = MAZE_HEIGHT * BLOCK_PIXELS;
     public final static int BOARD_WIDTH = MAZE_WIDTH * BLOCK_PIXELS;

@@ -5,7 +5,7 @@ import static processing.core.PConstants.P2D;
 import java.awt.Color;
 
 import processing.core.PApplet;
-import ch.bildspur.artnet.ArtNetClient;
+import ch.bildspur.artnet.*;
 
 public class OMG extends PApplet {
     public static void main( String[] args ) {
@@ -16,16 +16,21 @@ public class OMG extends PApplet {
     PacmanSprite sprite;
     PacmanGame game;
     ArtNetClient artnet;
+    ArtNetNode artnode;
+    ArtNetBuffer artbuff;
 
     public void settings() {
-	size((int)FULLWIDTH, (int)FULLWIDTH, P2D);
+	size((int)SCREENWIDTH, (int)SCREENWIDTH, P2D);
     }
 
     public void setup() {
         board = new PacmanBoard(this);
         sprite = new PacmanSprite(this);
 	game = new PacmanGame(this, board, sprite);
-	artnet = new ArtNetClient(null);
+	artbuff = new ArtNetBuffer();
+	artnet = new ArtNetClient(artbuff, ArtNetServer.DEFAULT_PORT+1, ArtNetServer.DEFAULT_PORT);
+	artnode = new ArtNetNode("192.168.0.30");
+	//artnode = new ArtNetNode("127.0.0.1");
 	artnet.start();
     }
 
@@ -37,13 +42,14 @@ public class OMG extends PApplet {
 
     public final static float MAX_GAME_MILLIS = 600000;
 
-    public final static float FULLWIDTH = 64*10;
-    public final static float HALFWIDTH = 32*10;
-    public final static float QUARTWIDTH = 16*10;
+    public final static float FULLWIDTH = 64;
+    public final static float HALFWIDTH = FULLWIDTH/2;
+    public final static float QUARTWIDTH = HALFWIDTH/2;
+    public final static float SCREENWIDTH = FULLWIDTH*2;
 
     public void draw() {
 	double deltaMs = 10;
-	double speed = 2;
+	double speed = 1;
 	telapsed += (float) (deltaMs * speed);
 
         if (game.finished() || this.telapsed > (float)(speed * MAX_GAME_MILLIS)) {
@@ -58,6 +64,13 @@ public class OMG extends PApplet {
         //     return;
         // }
         background(0);
+
+	// if (true) {
+	//     scale(FULLWIDTH / (PacmanBoard.MAZE_WIDTH * PacmanBoard.BLOCK_PIXELS), FULLWIDTH / (PacmanBoard.MAZE_WIDTH * PacmanBoard.BLOCK_PIXELS));
+	//     image(game.buffer, 0, 0);
+	//     transmit();
+	//     return;
+	// }	
 
 	translate(HALFWIDTH, HALFWIDTH);
 	rotate(rotation);
@@ -139,6 +152,12 @@ public class OMG extends PApplet {
 
         translate(-aX, -aY);
 
+	// // @@@
+	// translate(HALFWIDTH, HALFWIDTH);
+	// //scale(0.5f, 0.5f);
+	// scale(2f, 2f);
+	// translate(-HALFWIDTH, -HALFWIDTH);
+
 	image(game.buffer, 0, 0);
 
 	transmit();
@@ -172,23 +191,27 @@ public class OMG extends PApplet {
     }
 
     public void transmit() {
-	if (frameCount % 100 != 0) {
-	    return;
-	}
 	loadPixels();
 
-	byte[] dmxData = new byte[512];	
+	byte[] dmxData = new byte[510];	
 
-	for (int i = 0; i < pixels.length; i++) {
-	    for (int j = 0; j < 510; j += 3) {
+	for (int i = 0, s = 0; i < pixels.length; s++) {
+	    if ((pixels.length-i) < 170) {
+		dmxData = new byte[3*(pixels.length-i)];
+	    }
+	    for (int j = 0; j < 510 && i < pixels.length; j += 3, i++) {
 		dmxData[j] = (byte)Colors.red(pixels[i]);
 		dmxData[j+1] = (byte)Colors.green(pixels[i]);
 		dmxData[j+2] = (byte)Colors.blue(pixels[i]);
 	    }
-
-	    artnet.unicastDmx("127.0.0.1", 0, 0, dmxData);
+	    
+	    artnet.unicastDmx(artnode, 0, s, dmxData);
 	}
 
 	updatePixels();
+	// try {
+	//     Thread.sleep(100);
+	// } catch (InterruptedException e) {
+	// }
     }
 }
